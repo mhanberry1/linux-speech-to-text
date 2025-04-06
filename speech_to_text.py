@@ -80,7 +80,7 @@ def show_indicator(initial_text=''):
             text=initial_text,
             font=('Arial', 14),
             background='black',
-            foreground='red'
+            foreground='white'
         )
         recording_window.label.pack(expand=True)
     else:
