@@ -43,7 +43,7 @@ def on_release(key):
 def update_indicator(text, is_processing=False):
     """Update the indicator window with text."""
     global recording_window
-    if recording_window:
+    if recording_window and hasattr(recording_window, 'label'):
         if is_processing:
             # Use a sequence of dots for animation
             dots = '.' * (int(time.time() * 2) % 4)
@@ -52,9 +52,13 @@ def update_indicator(text, is_processing=False):
             recording_window.label.config(text=text)
         recording_window.update()
 
+
+
 def update_recording_indicator(elapsed_seconds):
     """Update the recording indicator with elapsed time."""
     update_indicator(f'🎤 Recording... {elapsed_seconds}s')
+
+
 
 def show_indicator(initial_text=''):
     """Show an indicator window at the top center of the screen."""
@@ -62,27 +66,42 @@ def show_indicator(initial_text=''):
     
     if recording_window is None:
         recording_window = tk.Tk()
-        recording_window.overrideredirect(True)  # Remove window decorations
-        recording_window.attributes('-topmost', True)  # Keep on top
+        recording_window.title("")
+        
+        # Remove window decorations and make it stay on top
+        recording_window.overrideredirect(True)
+        recording_window.attributes('-topmost', True)
         
         # Calculate position (top center)
         screen_width = recording_window.winfo_screenwidth()
         window_width = 300  # Made wider for processing text
+        window_height = 50
         x_position = (screen_width - window_width) // 2
         
         # Configure window
-        recording_window.geometry(f'{window_width}x50+{x_position}+0')
+        recording_window.geometry(f'{window_width}x{window_height}+{x_position}+0')
         recording_window.configure(bg='black')
         
+        # Create a frame with padding for better appearance
+        frame = tk.Frame(recording_window, bg='black', padx=10, pady=5)
+        frame.pack(fill="both", expand=True)
+        
         # Add indicator label
-        recording_window.label = ttk.Label(
-            recording_window,
+        label = tk.Label(
+            frame,
             text=initial_text,
             font=('Arial', 14),
-            background='black',
-            foreground='white'
+            fg='white',
+            bg='black',
+            padx=10,
+            pady=5
         )
-        recording_window.label.pack(expand=True)
+        label.pack(expand=True)
+        recording_window.label = label
+        
+        # Set window to be 70% transparent
+        recording_window.wait_visibility()
+        recording_window.attributes('-alpha', 0.7)
     else:
         update_indicator(initial_text)
     
